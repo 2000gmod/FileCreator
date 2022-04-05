@@ -1,0 +1,47 @@
+MAKEFLAGS += --no-print-directory
+
+SOURCEDIR = {{{Source directory name}}}
+OUTDIR = {{{Output directory name}}}
+CLASSDIR = {{{Class directory name}}}
+
+MAINPACKAGE = {{{Name of package where entry class is defined}}}
+MAINCLASS = {{{Name of class where main(String[] args) is defined}}}
+MAINARGS = 
+
+OUT_FILE = $(MAINCLASS)_output.txt
+
+PREFIX = [make]:
+DONE = Done\n
+
+MAINFILE = $(SOURCEDIR)/$(subst .,/,$(MAINPACKAGE))/$(MAINCLASS).java
+
+JVC = javac
+JVM = java
+
+OUT = > $(OUT_FILE)
+MAINOUT := $(subst .java,.class, $(subst $(SOURCEDIR),$(OUTDIR),$(MAINFILE)))
+
+default: $(MAINFILE)
+.phony: run runToFile clean
+
+$(MAINFILE): $(OUTDIR)
+	@printf "$(PREFIX) Compiling $<..."
+	@$(JVC) -d $(OUTDIR) -classpath $(CLASSDIR) -sourcepath $(SOURCEDIR) $(MAINFILE)
+	@printf " $(DONE)"
+
+$(OUTDIR):
+	@printf "$(PREFIX) Creating output directory..."
+	@mkdir -p $@
+	@printf " $(DONE)"
+
+run: $(MAINFILE)
+	@printf "$(PREFIX) Running target: \n\n"
+	@$(JVM) -cp ./$(OUTDIR) $(MAINPACKAGE).$(MAINCLASS) $(MAINARGS)
+
+runToFile: $(MAINFILE)
+	@printf "$(PREFIX) Running target to file: $(OUT_FILE)\n\n"
+	@$(JVM) -cp ./$(OUTDIR) $(MAINPACKAGE).$(MAINCLASS) $(MAINARGS) $(OUT)
+
+clean:
+	@printf "$(PREFIX) Cleaning output directory..."
+	@rm -rf ./$(OUTDIR)
