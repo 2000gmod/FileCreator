@@ -8,7 +8,7 @@ MAINPACKAGE = {{{Name of package where entry class is defined}}}
 MAINCLASS = {{{Name of class where main(String[] args) is defined}}}
 
 RUN_ON_WINDOW_COMMAND = konsole --hide-menubar --hide-tabbar --nofork -e make runWithWait
-USE_NEW_WINDOW = true
+USE_NEW_WINDOW = false
 PRESS_TO_EXIT_MSG = "Program complete, press any key to exit..."
 
 MAINARGS =
