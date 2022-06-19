@@ -6,7 +6,12 @@ CLASSDIR = {{{Class directory name}}}
 
 MAINPACKAGE = {{{Name of package where entry class is defined}}}
 MAINCLASS = {{{Name of class where main(String[] args) is defined}}}
-MAINARGS = 
+
+RUN_ON_WINDOW_COMMAND = konsole --hide-menubar --hide-tabbar --nofork -e make runWithWait
+USE_NEW_WINDOW = true
+PRESS_TO_EXIT_MSG = "Program complete, press any key to exit..."
+
+MAINARGS =
 
 OUT_FILE = $(MAINCLASS)_output.txt
 
@@ -14,6 +19,9 @@ PREFIX = [make]:
 DONE = Done\n
 
 MAINFILE = $(SOURCEDIR)/$(subst .,/,$(MAINPACKAGE))/$(MAINCLASS).java
+MAINOUT = $(OUTDIR)/$(subst .,/,$(MAINPACKAGE))/$(MAINCLASS).class
+FILES = $(shell find . -name '*.java' ! -wholename './$(MAINFILE)')
+ALLFILES = ./$(MAINFILE) $(FILES)
 
 JVC = javac
 JVM = java
@@ -22,10 +30,10 @@ OUT = > $(OUT_FILE)
 MAINOUT := $(subst .java,.class, $(subst $(SOURCEDIR),$(OUTDIR),$(MAINFILE)))
 
 default: $(MAINFILE)
-.phony: run runToFile clean
+.phony: run runToFile runWithWait clean
 
-$(MAINFILE): $(OUTDIR)
-	@printf "$(PREFIX) Compiling $<..."
+$(MAINOUT): $(OUTDIR) $(ALLFILES)
+	@printf "$(PREFIX) Compiling $@..."
 	@$(JVC) -d $(OUTDIR) -classpath $(CLASSDIR) -sourcepath $(SOURCEDIR) $(MAINFILE)
 	@printf " $(DONE)"
 
@@ -34,13 +42,20 @@ $(OUTDIR):
 	@mkdir -p $@
 	@printf " $(DONE)"
 
-run: $(MAINFILE)
-	@printf "$(PREFIX) Running target: \n\n"
-	@$(JVM) -cp ./$(OUTDIR) $(MAINPACKAGE).$(MAINCLASS) $(MAINARGS)
 
-runToFile: $(MAINFILE)
-	@printf "$(PREFIX) Running target to file: $(OUT_FILE)\n\n"
+run: $(MAINOUT)
+	@printf "$(PREFIX) Running target: $(MAINOUT) $(MAINARGS)\n\n"
+	@if ($(USE_NEW_WINDOW)) then $(RUN_ON_WINDOW_COMMAND) 2> /dev/null; else ($(JVM) -cp ./$(OUTDIR) $(MAINPACKAGE).$(MAINCLASS) $(MAINARGS)); fi;
+
+runToFile: $(MAINOUT)
+	@printf "$(PREFIX) Running target: $(MAINOUT)\n"
+	@printf "$(PREFIX) Redirecting stdout to: $(OUT_FILE)\n\n"
 	@$(JVM) -cp ./$(OUTDIR) $(MAINPACKAGE).$(MAINCLASS) $(MAINARGS) $(OUT)
+
+runWithWait: $(MAINOUT)
+	-@$(JVM) -cp ./$(OUTDIR) $(MAINPACKAGE).$(MAINCLASS) $(MAINARGS)
+	@printf "\n\n\n"
+	@read  -r -p $(PRESS_TO_EXIT_MSG) key
 
 clean:
 	@printf "$(PREFIX) Cleaning output directory..."

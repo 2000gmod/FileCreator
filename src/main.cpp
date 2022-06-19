@@ -63,9 +63,8 @@ void doTextReplacement(const std::string &text) {
             i = closingPair;
             continue;
         }
-        else {
-            newFile += text[i];
-        }
+        newFile += text[i];
+        
     }
 
     std::ofstream out(outputFileName);

@@ -6,7 +6,7 @@ TARGET = $(OUTDIR)/$(TARGET_NAME)
 CC = g++
 CFLAGS = -Wall -Wextra -Wpedantic -MMD
 MEMPROFILER = valgrind
-FORMATTER = clang-format13
+FORMATTER = clang-format
 
 MAINARGS = templates/c
 
