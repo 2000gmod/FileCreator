@@ -72,7 +72,7 @@ runToFile: $(TARGET)
 	@$(TARGET) $(MAINARGS) $(OUT)
 
 runWithWait: $(TARGET)
-	@$(TARGET) $(MAINARGS)
+	-@$(TARGET) $(MAINARGS)
 	@printf "\n\n\n"
 	@read  -r -p $(PRESS_TO_EXIT_MSG) key
 
