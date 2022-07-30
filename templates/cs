@@ -1,0 +1,62 @@
+MAKEFLAGS += --no-print-directory -s
+
+
+TARGET_NAME = {{{Compilation target name}}}
+TARGET = $(OUTDIR)/$(TARGET_NAME)
+
+SOURCEDIR = {{{Source directory name}}}
+OUTDIR = {{{Output directory name}}}
+
+
+
+RUN_ON_WINDOW_COMMAND = konsole --hide-menubar --hide-tabbar --nofork -e make runWithWait
+USE_NEW_WINDOW = false
+PRESS_TO_EXIT_MSG = "Program complete, press any key to exit..."
+
+MAINARGS =
+
+OUT_FILE = $(TARGET_NAME)_output.txt
+
+PREFIX = [make]:
+DONE = Done\n
+
+SOURCES := $(shell find . -name '*.cs')
+
+
+CSC = mcs
+
+OUT = > $(OUT_FILE)
+
+default:
+	@/usr/bin/time --format="$(PREFIX) Time: %E seconds" $(MAKE) $(TARGET)
+
+.phony: run runToFile runWithWait clean
+
+$(TARGET): $(OUTDIR) $(SOURCES)
+	@printf "$(PREFIX) Compiling $@..."
+	@$(CSC) -out:$(TARGET) $(SOURCES)
+	@printf " $(DONE)"
+
+$(OUTDIR):
+	@printf "$(PREFIX) Creating output directory..."
+	@mkdir -p $@
+	@printf " $(DONE)"
+
+
+run: default
+	@printf "$(PREFIX) Running target: $(TARGET) $(MAINARGS)\n\n"
+	@if ($(USE_NEW_WINDOW)) then $(RUN_ON_WINDOW_COMMAND) 2> /dev/null; else ($(TARGET) $(MAINARGS)); fi;
+
+runToFile: default
+	@printf "$(PREFIX) Running target: $(TARGET)\n"
+	@printf "$(PREFIX) Redirecting stdout to: $(OUT_FILE)\n\n"
+	@$(TARGET) $(MAINARGS) $(OUT)
+
+runWithWait: default
+	-@$(TARGET) $(MAINARGS)
+	@printf "\n\n\n"
+	@read  -r -p $(PRESS_TO_EXIT_MSG) key
+
+clean:
+	@printf "$(PREFIX) Cleaning output directory..."
+	@rm -rf ./$(OUTDIR)

@@ -1,4 +1,4 @@
-MAKEFLAGS += --no-print-directory
+MAKEFLAGS += --no-print-directory -s
 
 SOURCEDIR = {{{Source directory name}}}
 OUTDIR = {{{Output directory name}}}
@@ -29,7 +29,9 @@ JVM = java
 OUT = > $(OUT_FILE)
 MAINOUT := $(subst .java,.class, $(subst $(SOURCEDIR),$(OUTDIR),$(MAINFILE)))
 
-default: $(MAINFILE)
+default:
+	@/usr/bin/time --format="$(PREFIX) Time: %E seconds" $(MAKE) $(MAINOUT)
+
 .phony: run runToFile runWithWait clean
 
 $(MAINOUT): $(OUTDIR) $(ALLFILES)
@@ -43,11 +45,11 @@ $(OUTDIR):
 	@printf " $(DONE)"
 
 
-run: $(MAINOUT)
+run: default
 	@printf "$(PREFIX) Running target: $(MAINOUT) $(MAINARGS)\n\n"
 	@if ($(USE_NEW_WINDOW)) then $(RUN_ON_WINDOW_COMMAND) 2> /dev/null; else ($(JVM) -cp ./$(OUTDIR) $(MAINPACKAGE).$(MAINCLASS) $(MAINARGS)); fi;
 
-runToFile: $(MAINOUT)
+runToFile: default
 	@printf "$(PREFIX) Running target: $(MAINOUT)\n"
 	@printf "$(PREFIX) Redirecting stdout to: $(OUT_FILE)\n\n"
 	@$(JVM) -cp ./$(OUTDIR) $(MAINPACKAGE).$(MAINCLASS) $(MAINARGS) $(OUT)

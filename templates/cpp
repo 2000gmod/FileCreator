@@ -1,4 +1,4 @@
-MAKEFLAGS += --no-print-directory
+MAKEFLAGS += --no-print-directory -s
 
 TARGET_NAME = {{{Compilation target name}}}
 TARGET = $(OUTDIR)/$(TARGET_NAME)
@@ -34,7 +34,7 @@ DONE = Done\n
 
 .PHONY: default
 default:
-	$(MAKE) $(TARGET)
+	@/usr/bin/time --format="$(PREFIX) Time: %E seconds" $(MAKE) $(TARGET)
 
 $(TARGET): $(OBJECTS) | $(OUTDIR)
 	@printf "$(PREFIX) Linking..."
@@ -64,11 +64,11 @@ $(OBJDIR):
 
 .PHONY: clean deepclean run debug runToFile runWithWait
 
-run: $(TARGET)
+run: default
 	@printf "$(PREFIX) Running target: $(TARGET) $(MAINARGS)\n\n"
 	@if ($(USE_NEW_WINDOW)) then $(RUN_ON_WINDOW_COMMAND) 2> /dev/null; else ($(TARGET) $(MAINARGS)); fi;
 
-runToFile: $(TARGET)
+runToFile: default
 	@printf "$(PREFIX) Running target: $(TARGET)\n"
 	@printf "$(PREFIX) Redirecting stdout to: $(OUT_FILE)\n\n"
 	@$(TARGET) $(MAINARGS) $(OUT)
